@@ -9,7 +9,7 @@
 
 typedef struct header
 {
-  size_t size;        /* Taille du bloc */
+  size_t size;         /* Taille du bloc */
   struct header *next; /* Bloc libre suivant */
 } Header;
 

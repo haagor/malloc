@@ -19,7 +19,7 @@ Header *getHeaderPtr(void *ptr)
 void setSizePtr(void *ptr, size_t size, Header *next)
 {
   Header* header = (Header*)ptr;
-  header->size = size;  // équivalent: (*header).size = size;
+  header->size = size;
   header->next = next;
 }
 

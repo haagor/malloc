@@ -4,10 +4,11 @@
  * Implémentation first-fit pour malloc
  *
  * Author: Simon Paris
+ * Author: Pascal Tung
  */
 
 #include <stdio.h>
-#include <unistd.h> // ?
+#include <unistd.h>
 #include <strings.h>
 
 #include "my-malloc.h"
@@ -55,7 +56,6 @@ void* getBlock(size_t size)
 {
   Header* prev   = freelist;
   Header* header = freelist->next;
-  Header* next   = header->next;
   while (0 != header->size) // le 1er block a une taille 0
   {
     if (size <= header->size)
@@ -78,7 +78,6 @@ void* getBlock(size_t size)
     }
     prev   = header;
     header = prev->next;
-    next   = header->next;
   }
 
   return 0;
