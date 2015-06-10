@@ -14,9 +14,11 @@
 #include "list.h"
 
 
-static int nb_alloc     = 0;		/* Nombre de fois où on alloué     */
-static int nb_dealloc   = 0;		/* Nombre de fois où on désalloué  */
-static int nb_sbrk      = 0;		/* nombre de fois où a appelé sbrk */
+static int nb_alloc           = 0; /* nombre de fois où on alloué     */
+static int nb_dealloc         = 0; /* nombre de fois où on désalloué  */
+static int nb_sbrk            = 0; /* nombre de fois où a appelé sbrk */
+static size_t sbrk_block_size = 1024; /* taille des blocs sbrk */
+
 static Header freelistStart  = { 0, &freelistStart }; /* le bloc initial de taiile nulle */
 static Header* freelist = &freelistStart; /* pointeur sur la liste des blocs libres */
 
@@ -88,13 +90,14 @@ void *mymalloc(size_t size) {
 
   void* result;
 
-  result = getBlock(size);
-  if (0 == result)
+  while (0 == (result = getBlock(size)))
   {
-    void* free_mem = sbrk(getRealSize(size));
+    void* free_mem = sbrk(sbrk_block_size);
+
+    setSizePtr(free_mem, sbrk_block_size - sizeof(Header), 0);
+    insert(free_mem);
+
     nb_sbrk += 1;
-    setSizePtr(free_mem, size, 0);
-    result = getRealPtr(free_mem);
   }
 
   return result;
