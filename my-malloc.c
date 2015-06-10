@@ -30,22 +30,22 @@ static Header* freelist = &freelistStart; /* pointeur sur la liste des blocs lib
 void insert(Header* insert)
 {
   Header* header = freelist;
-  Header* next = header->next;
+  Header* next = header->info.next;
   do
   {
     if (header < insert && insert < next)
     {
-      header->next = insert;
-      insert->next = next;
+      header->info.next = insert;
+      insert->info.next = next;
       fusion(header);
       return;
     }
     header = next;
-    next = header->next;
-  } while (0 != next->size);
+    next = header->info.next;
+  } while (0 != next->info.size);
   // insertion en fin de liste
-  header->next = insert;
-  insert->next = freelist;
+  header->info.next = insert;
+  insert->info.next = freelist;
   fusion(header);
 }
 
@@ -55,29 +55,29 @@ void insert(Header* insert)
 void* getBlock(size_t size)
 {
   Header* prev   = freelist;
-  Header* header = freelist->next;
-  while (0 != header->size) // le 1er block a une taille 0
+  Header* header = freelist->info.next;
+  while (0 != header->info.size) // le 1er block a une taille 0
   {
-    if (size <= header->size)
+    if (size <= header->info.size)
     {
-      if (size + sizeof(Header) >= header->size)
+      if (size + sizeof(Header) >= header->info.size)
       {
         // supprimer le bloc
-        prev->next = header->next;
+        prev->info.next = header->info.next;
         setPtr(header, 0);
       }
       else
       {
         // couper le bloc : attention il faut avoir la place pour le header
         Header* newHeader = (Header*)((void*)header + size + sizeof(Header));
-        setSizePtr(newHeader, header->size - size - sizeof(Header), header->next);
-        prev->next = newHeader;
+        setSizePtr(newHeader, header->info.size - size - sizeof(Header), header->info.next);
+        prev->info.next = newHeader;
         setSizePtr(header, size, 0);
       }
       return getRealPtr(header);
     }
     prev   = header;
-    header = prev->next;
+    header = prev->info.next;
   }
 
   return 0;
@@ -122,7 +122,7 @@ void *mycalloc(size_t nmemb, size_t size) {
 
 void *myrealloc(void *ptr, size_t size) {
   Header* header = getHeaderPtr(ptr);
-  size_t minSize = header->size;
+  size_t minSize = header->info.size;
   if (size < minSize)
   {
     minSize = size;
@@ -149,15 +149,15 @@ void mymalloc_infos(char *msg, void** tab, int tabLength) {
 
   Header* header = freelist;
   do {
-    fprintf(stderr, "Block @ %p (size = %3zu, next %p)\n", header, header->size, header->next);
+    fprintf(stderr, "Block @ %p (size = %3zu, next %p)\n", header, header->info.size, header->info.next);
     // Block @ 0x601570 (size=   0, next 0x13270a0)
-    header = header->next;
-  } while (0 != header->size);
+    header = header->info.next;
+  } while (0 != header->info.size);
 
   /*for (int i = 0; i < tabLength; i++) {
     if (tab[i] != 0) {
       Header* h = (Header*)(tab[i] - sizeof(Header));
-      fprintf(stderr, "Tab @ %p (size = %3zu, next %p)\n", h, h->size, h->next);
+      fprintf(stderr, "Tab @ %p (size = %3zu, next %p)\n", h, h->info.size, h->info.next);
     }
     }*/
 

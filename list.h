@@ -7,10 +7,15 @@
 
 #include <stdio.h>
 
-typedef struct header
+#define MOST_RESTRICTING_TYPE double
+
+typedef union header
 {
-  size_t size;         /* Taille du bloc */
-  struct header *next; /* Bloc libre suivant */
+    struct {
+        unsigned int size;  /* Taille du bloc */
+        union header *next; /* Bloc libre suivant */
+    } info;
+    MOST_RESTRICTING_TYPE dummy;
 } Header;
 
 size_t getRealSize(size_t size);
