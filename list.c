@@ -19,31 +19,31 @@ Header *getHeaderPtr(void *ptr)
 void setSizePtr(void *ptr, size_t size, Header *next)
 {
   Header* header = (Header*)ptr;
-  header->size = size;
-  header->next = next;
+  header->info.size = size;
+  header->info.next = next;
 }
 
 void setPtr(Header *ptr, Header *next)
 {
-  ptr->next = next;
+  ptr->info.next = next;
 }
 
 
 void fusion(Header* here)
 {
-  if (getRealPtr(here) + here->size == here->next)
+  if (getRealPtr(here) + here->info.size == here->info.next)
   {
-    here->size = here->size + sizeof(Header) + here->next->size;
-    here->next = here->next->next;
+    here->info.size = here->info.size + sizeof(Header) + here->info.next->info.size;
+    here->info.next = here->info.next->info.next;
   }
   else
   {
-    here = here->next;
+    here = here->info.next;
   }
-  if (getRealPtr(here) + here->size == here->next)
+  if (getRealPtr(here) + here->info.size == here->info.next)
   {
-    here->size = here->size + sizeof(Header) + here->next->size;
-    here->next = here->next->next;
+    here->info.size = here->info.size + sizeof(Header) + here->info.next->info.size;
+    here->info.next = here->info.next->info.next;
   }
 }
 
